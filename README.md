@@ -42,6 +42,6 @@ upload for files and indexed searching.
 - ### FileDownload flag (args):
   - as the name suggests, would be used to download files from the shared folder of connected user to our shared folder.
   - the flag variable can take the value TCP or UDP depending on the users request. 
-    - $> `FileDownload <filename>`
+    - $> `FileDownload <flag> <filename>`
     - Output : should contain the filename, filesize, last modified timestamp
     and the MD5 hash of the requested file.

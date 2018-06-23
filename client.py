@@ -1,3 +1,6 @@
+"""
+Contains functionality for client
+"""
 import socket
 import os
 import sys
@@ -8,22 +11,47 @@ import logging
 __author__ = 'harry7'
 LOG_FILE = 'client_log.log'
 LOG_LEVEL = logging.DEBUG
-addr = ''
+DATE_TIME_FORMAT = '%I:%M%p %B %d, %Y'
+BUF_SIZE = 1024
 
 
-def close_client():
-    time_end = datetime.now().strftime('%I:%M%p %B %d, %Y')
-    logging.info('------- Connection Closed at ' + time_end + ' -------')
-    s.close()
+def get_current_time():
+    """
+    Return current time as a string in required format
+    :return: string with current time
+    """
+    return datetime.now().strftime(DATE_TIME_FORMAT)
+
+
+def close_client(client_sock):
+    """
+    Close client and update that information in log
+    :param client_sock: client socket to be closed
+    """
+    logging.info('Connection Closed at %s', get_current_time())
+    client_sock.close()
     exit(0)
 
 
-def file_download(args, filename, flag):
-    s.send(args)
-    data = s.recv(1024)
+def file_download(server_sock, input_cmd, host):
+    """
+    Perform the `FileDownload` command
+    :param host: host address of the server
+    :param server_sock: Server socket for communication
+    :param input_cmd: command given
+    """
+    server_sock.send(' '.join(input_cmd))
+    data = server_sock.recv(BUF_SIZE)
+    filename = ' '.join(input_cmd[2:])
+    flag = input_cmd[1]
 
-    def log_error(exception):
-        logging.error('FileDownload for %s failed: %s' % (filename, exception))
+    def log_error(error_exception):
+        """
+        Update the log with error information and close the client
+        :param error_exception: exception which caused the error
+        """
+        logging.error('FileDownload for %s failed: %s',
+                      filename, error_exception)
 
     if flag != 'UDP' and flag != 'TCP':
         sys.stderr.write('Wrong Arguments\n')
@@ -33,79 +61,90 @@ def file_download(args, filename, flag):
         print data
         return
     if flag == 'UDP':
-        port_received = int(s.recv(1024))
-        new_con_soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        port_received = int(server_sock.recv(BUF_SIZE))
+        new_server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         addr = (host, port_received)
-        new_con_soc.sendto('received', addr)
+        new_server_sock.sendto('received', addr)
         try:
-            f = open(filename, 'wb+')
-        except Exception as e:
+            file_pointer = open(filename, 'wb+')
+        except IOError as exception:
             sys.stderr.write('Insufficient Privileges or Space\n')
-            log_error(e)
+            log_error(exception)
             return
         while True:
-            data, addr = new_con_soc.recvfrom(1024)
+            data, addr = new_server_sock.recvfrom(BUF_SIZE)
             if data == 'done':
                 break
-            f.write(data)
-            new_con_soc.sendto('received', addr)
-        f.close()
-        new_con_soc.close()
+            file_pointer.write(data)
+            new_server_sock.sendto('received', addr)
+        file_pointer.close()
+        new_server_sock.close()
     elif flag == 'TCP':
         try:
-            f = open(filename, 'wb+')
-        except Exception as e:
+            file_pointer = open(filename, 'wb+')
+        except IOError as exception:
             sys.stderr.write('Insufficient Privileges or Space\n')
-            log_error(e)
+            log_error(exception)
             return
         while True:
-            data = s.recv(1024)
+            data = server_sock.recv(BUF_SIZE)
             if data == 'done':
                 break
-            f.write(data)
-            s.send('received')
-        f.close()
-    hash1 = s.recv(1024)
-    f = open(filename, 'rb')
-    orig_hash = hashlib.md5(f.read()).hexdigest()
+            file_pointer.write(data)
+            server_sock.send('received')
+        file_pointer.close()
+    hash1 = server_sock.recv(BUF_SIZE)
+    file_pointer = open(filename, 'rb')
+    orig_hash = hashlib.md5(file_pointer.read()).hexdigest()
     if hash1 != orig_hash:
-        # print hash,orig_hash
         sys.stderr.write('File download failed')
-        logging.warning('FileDownload failed for %s Hash mismatch' % filename)
+        logging.warning('FileDownload failed for %s Hash mismatch', filename)
     else:
-        s.send('sendme')
-        data = s.recv(1024)
+        server_sock.send('sendme')
+        data = server_sock.recv(BUF_SIZE)
         print data
-        logging.debug('FileDownload for %s successful' % filename)
+        logging.debug('FileDownload for %s successful', filename)
 
 
-def recieve_data(inp):
-    def log_error(exception):
+def receive_data(current_sock, input_cmd):
+    """
+    Handles recieving data for `IndexGet` and `FileHash` commands
+    :param current_sock: Server socket for communication
+    :param input_cmd: Command given to the client
+    """
+
+    def log_error(error_exception):
+        """
+        Update the log with error information and close the client
+        :param error_exception: exception which caused the error
+        """
         sys.stderr.write('Error in Connection\n')
-        logging.error('Could not send data to server %s' % exception)
-        close_client()
+        logging.error('Could not send data to server %s', error_exception)
+        close_client(current_sock)
 
     try:
-        s.send(inp)
-    except Exception as e:
-        log_error(e)
+        current_sock.send(input_cmd)
+    except socket.error as exception:
+        log_error(exception)
     while True:
         try:
-            data = s.recv(1024)
+            data = current_sock.recv(BUF_SIZE)
             if data == 'done':
                 break
             print data
-        except Exception as e:
-            log_error(e)
+        except socket.error as exception:
+            log_error(exception)
         try:
-            s.send('received')
-        except Exception as e:
-            log_error(e)
+            current_sock.send('received')
+        except socket.error as exception:
+            log_error(exception)
 
 
-if __name__ == '__main__':
-
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def main():
+    """
+    The main driver program
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = raw_input('Host ip: ')
     port = input('PORT: ')
     down = raw_input('Download Folder: ')
@@ -120,34 +159,38 @@ if __name__ == '__main__':
         os.chdir(down)
 
     try:
-        s.connect((host, port))
-    except:
+        sock.connect((host, port))
+    except socket.error:
         sys.stderr.write('No available server found on given address\n')
-        s.close()
+        sock.close()
         exit(-1)
     cnt = 0
 
     try:
         logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
         logging.debug('Starting the Client')
-    except Exception as e:
-        sys.stderr.write('Logging error %s\n' % e)
+    except IOError as exception:
+        sys.stderr.write('Logging error %s\n' % exception)
         exit(-1)
 
-    time = datetime.now().strftime('%I:%M%p %B %d, %Y')
-    logging.info('------- Connected to ' + host + ' at ' + time + ' -------')
+    time = get_current_time()
+    logging.info('Connected to %s at %s', host, time)
     logging.debug('Commands sent:')
     while True:
         cnt += 1
-        args = raw_input('Enter command: ')
-        inp = args.split()
-        logging.debug(str(cnt) + '. ' + args + '')
-        if len(inp) == 0 or inp[0] == 'close':
-            s.send(args)
-            close_client()
-        elif inp[0] == 'IndexGet' or inp[0] == 'FileHash':
-            recieve_data(args)
-        elif inp[0] == 'FileDownload':
-            file_download(args, ' '.join(inp[2:]), inp[1])
+        cmd = raw_input('Enter command: ')
+        cmd = cmd.split()
+        logging.debug('Command %d - %s', cnt, cmd)
+        if not cmd or cmd[0] == 'close':
+            sock.send(cmd)
+            close_client(sock)
+        elif cmd[0] == 'IndexGet' or cmd[0] == 'FileHash':
+            receive_data(sock, cmd)
+        elif cmd[0] == 'FileDownload':
+            file_download(sock, cmd, host)
         else:
-            sys.stderr.write('Invalid Command %s\n' % inp)
+            sys.stderr.write('Invalid Command %s\n' % cmd)
+
+
+if __name__ == '__main__':
+    main()
