@@ -7,11 +7,14 @@ import sys
 import hashlib
 import logging
 
-from utils import get_current_time
+from .utils import get_current_time
 
 __author__ = 'harry7'
+## Name of the log file
 LOG_FILE = 'client_log.log'
+## Level of logging
 LOG_LEVEL = logging.DEBUG
+## Size of the send and receive buffers
 BUF_SIZE = 1024
 
 
@@ -36,7 +39,6 @@ def file_download(server_sock, input_cmd, host):
     data = server_sock.recv(BUF_SIZE)
     filename = ' '.join(input_cmd[2:])
     flag = input_cmd[1]
-    print('Entered file_download')
 
     def log_error(error_exception):
         """
@@ -54,7 +56,6 @@ def file_download(server_sock, input_cmd, host):
         print 'wrong ack received', data
         return
     if flag == 'UDP':
-        print(flag)
         port_received = int(server_sock.recv(BUF_SIZE))
         new_server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         addr = (host, port_received)

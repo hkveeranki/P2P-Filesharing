@@ -8,14 +8,20 @@ import re
 import logging
 import sys
 
-from utils import get_current_time
+from .utils import get_current_time
 
 __author__ = 'harry7'
+## Size of send/receive buffer
 BUF_SIZE = 1024
+## Find command to find required files
 FIND_CMD = "find . -not -path '*/\\.*' -type f"
+## Host address to which the socket needs to be bound
 HOST = '0.0.0.0'
+## Name of the log file
 LOG_FILE = 'server_log.log'
+## level of logging
 LOG_LEVEL = logging.DEBUG
+## stat command prefix to find information needed
 STAT_CMD_PREFIX = "stat --printf 'name: %n \tSize: %s bytes\t Type: " \
                   "%F\t Timestamp:%z' "
 

@@ -3,6 +3,7 @@ Utilities needed for both client and server
 """
 from datetime import datetime
 
+## format for the date time string
 DATE_TIME_FORMAT = '%I:%M%p %B %d, %Y'
 
 
