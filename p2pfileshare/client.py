@@ -7,185 +7,222 @@ import sys
 import hashlib
 import logging
 
-from .utils import get_current_time
+from .utils import get_current_time, change_directory, \
+    PROTOCOLS, clean_file_name, BUF_SIZE, LOG_LEVEL
+from . import Runner
 
 __author__ = 'harry7'
-## Name of the log file
-LOG_FILE = 'client_log.log'
-## Level of logging
-LOG_LEVEL = logging.DEBUG
-## Size of the send and receive buffers
-BUF_SIZE = 1024
 
 
-def close_client(client_sock):
+class Client(Runner, object):
     """
-    Close client and update that information in log
-    :param client_sock: client socket to be closed
+    Class that implements the functionality of the client
     """
-    logging.info('Connection Closed at %s', get_current_time())
-    client_sock.close()
-    exit(0)
 
-
-def file_download(server_sock, input_cmd, host):
-    """
-    Perform the `FileDownload` command
-    :param host: host address of the server
-    :param server_sock: Server socket for communication
-    :param input_cmd: command given
-    """
-    server_sock.send(' '.join(input_cmd))
-    data = server_sock.recv(BUF_SIZE)
-    filename = ' '.join(input_cmd[2:])
-    flag = input_cmd[1]
-
-    def log_error(error_exception):
+    def __init__(self, log_file, buffer_size):
         """
-        Update the log with error information and close the client
-        :param error_exception: exception which caused the error
+        Initialise the fields of the class
+        :param log_file: Name of the log file
+        :param buffer_size: buffer size for send and receive
         """
-        logging.error('FileDownload for %s failed: %s',
-                      filename, error_exception)
+        super(Client, self).__init__(buffer_size, log_file)
+        ## Host address of the server
+        self.server_address = None
+        ## Port id of the server
+        self.server_port = None
 
-    if flag != 'UDP' and flag != 'TCP':
-        sys.stderr.write('Wrong Arguments\n')
-        sys.stderr.write('Format FileDownload <TCP/UDP> <file_name>\n')
-        return
-    if data != 'received':
-        print 'wrong ack received', data
-        return
-    if flag == 'UDP':
-        port_received = int(server_sock.recv(BUF_SIZE))
-        new_server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        addr = (host, port_received)
-        new_server_sock.sendto('received', addr)
+    def close_client(self):
+        """
+        Close client and update that information in log
+        """
+        logging.info('Connection Closed at %s', get_current_time())
+        self.sock.close()
+        exit(0)
+
+    def receive_data(self, input_cmd):
+        """
+        Handles receiving data for `IndexGet` and `FileHash` commands
+        :param input_cmd: Command given to the client
+        """
+
+        def log_error(error_exception):
+            """
+            Update the log with error information and close the client
+            :param error_exception: exception which caused the error
+            """
+            sys.stderr.write('Error in Connection\n')
+            logging.error('Could not send data to server %s', error_exception)
+            self.close_client()
+
+        try:
+            self.sock.send(' '.join(input_cmd))
+        except socket.error as exception:
+            log_error(exception)
+        while True:
+            try:
+                data = self.sock.recv(self.buffer_size)
+                if data == 'done':
+                    break
+                print data
+            except socket.error as exception:
+                log_error(exception)
+            try:
+                self.sock.send('received')
+            except socket.error as exception:
+                log_error(exception)
+
+    def file_download(self, input_cmd):
+        """
+        Perform the `FileDownload` command
+        :param input_cmd: command given
+        """
+        flag = input_cmd[1]
+        if flag not in PROTOCOLS:
+            sys.stderr.write('Wrong Arguments\n')
+            sys.stderr.write('Format FileDownload <TCP/UDP> <file_name>\n')
+            return
+
+        filename = clean_file_name(' '.join(input_cmd[2:]))
+
+        self.sock.send(' '.join(input_cmd))
+        data = self.sock.recv(self.buffer_size)
+        if data != 'received':
+            print 'wrong ack', data, 'received'
+            return
+
+        new_server_sock, new_host_address = self._create_new_sock_if_needed(flag)
         try:
             file_pointer = open(filename, 'wb+')
         except IOError as exception:
             sys.stderr.write('Insufficient Privileges or Space\n')
-            log_error(exception)
+            self._log_error(filename, exception)
             return
-        while True:
-            data, addr = new_server_sock.recvfrom(BUF_SIZE)
-            if data == 'done':
-                break
-            file_pointer.write(data)
-            new_server_sock.sendto('received', addr)
-        file_pointer.close()
-        new_server_sock.close()
-    elif flag == 'TCP':
+        logging.info('Started FileDownload for %s', filename)
         try:
-            file_pointer = open(filename, 'wb+')
-        except IOError as exception:
-            sys.stderr.write('Insufficient Privileges or Space\n')
-            log_error(exception)
-            return
-        while True:
-            data = server_sock.recv(BUF_SIZE)
-            if data == 'done':
-                break
-            file_pointer.write(data)
-            server_sock.send('received')
+            while True:
+                if new_server_sock:
+                    data, new_host_address = new_server_sock.recvfrom(self.buffer_size)
+                else:
+                    data = self.sock.recv(self.buffer_size)
+                if data == 'done':
+                    break
+                file_pointer.write(data)
+                if new_server_sock and new_host_address:
+                    new_server_sock.sendto('received', new_host_address)
+                else:
+                    self.sock.send('received')
+        except socket.error as exception:
+            self._log_error(filename, exception)
         file_pointer.close()
-    hash1 = server_sock.recv(BUF_SIZE)
-    file_pointer = open(filename, 'rb')
-    orig_hash = hashlib.md5(file_pointer.read()).hexdigest()
-    if hash1 != orig_hash:
-        sys.stderr.write('File download failed')
-        logging.warning('FileDownload failed for %s Hash mismatch', filename)
-    else:
-        server_sock.send('sendme')
-        data = server_sock.recv(BUF_SIZE)
+        if new_server_sock:
+            new_server_sock.close()
+        self._verify_hash(filename)
+
+    def main(self):
+        """
+        The main driver program
+        """
+        self._init_setup()
+        cnt = 0
+        logging.debug('Commands sent:')
+        while True:
+            cnt += 1
+            cmd = raw_input('Enter command: ')
+            cmd = cmd.split()
+            logging.debug('Command %d - %s', cnt, cmd)
+            if not cmd or cmd[0] == 'close':
+                self.sock.send(' '.join(cmd))
+                self.close_client()
+            elif cmd[0] == 'IndexGet' or cmd[0] == 'FileHash':
+                self.receive_data(cmd)
+            elif cmd[0] == 'FileDownload':
+                self.file_download(cmd)
+            else:
+                sys.stderr.write('Invalid Command %s\n' % cmd)
+
+    def _verify_hash(self, filename):
+        """
+        Verify hash for the downloaded file
+        :param filename: name of the downloaded file
+        """
+        hash1 = self.sock.recv(self.buffer_size)
+        file_pointer = open(filename, 'rb')
+        orig_hash = hashlib.md5(file_pointer.read()).hexdigest()
+        if hash1 != orig_hash:
+            sys.stderr.write('File download failed')
+            logging.warning('FileDownload failed for %s Hash mismatch', filename)
+            return
+
+        self.sock.send('sendme')
+        data = self.sock.recv(self.buffer_size)
         print data
         logging.debug('FileDownload for %s successful', filename)
 
+    def _init_setup(self):
+        """
+        Perform the initial setup required by the client
+        """
+        host = raw_input('Host ip[localhost]: ') or '127.0.0.1'
+        port = int(raw_input('PORT[1234]: ') or '1234')
+        download_folder = (raw_input('Download Folder: ') or
+                           os.path.abspath('.'))
 
-def receive_data(current_sock, input_cmd):
-    """
-    Handles receiving data for `IndexGet` and `FileHash` commands
-    :param current_sock: Server socket for communication
-    :param input_cmd: Command given to the client
-    """
+        change_directory(download_folder)
 
-    def log_error(error_exception):
+        self.server_address = host
+        self.server_port = port
+
+        self._connect_to_host()
+        self._setup_logging()
+
+    def _connect_to_host(self):
+        """
+        Connect to the host server
+        """
+        try:
+            self.sock.connect((self.server_address, self.server_port))
+        except socket.error:
+            sys.stderr.write('No available server found on given address\n')
+            self.sock.close()
+            sys.exit(-1)
+
+    def _setup_logging(self):
+        """
+        Setup the logging for the client
+        """
+        try:
+            logging.basicConfig(filename=self.log_file, level=LOG_LEVEL)
+            logging.debug('Client connected to %s at %s',
+                          self.server_address, get_current_time())
+        except IOError as exception:
+            sys.stderr.write('Logging error %s\n' % exception)
+            sys.exit(-1)
+
+    def _log_error(self, filename, error_exception):
         """
         Update the log with error information and close the client
         :param error_exception: exception which caused the error
         """
-        sys.stderr.write('Error in Connection\n')
-        logging.error('Could not send data to server %s', error_exception)
-        close_client(current_sock)
+        logging.error('FileDownload for %s from %s failed: %s',
+                      filename, self.server_address, error_exception)
 
-    try:
-        current_sock.send(' '.join(input_cmd))
-    except socket.error as exception:
-        log_error(exception)
-    while True:
-        try:
-            data = current_sock.recv(BUF_SIZE)
-            if data == 'done':
-                break
-            print data
-        except socket.error as exception:
-            log_error(exception)
-        try:
-            current_sock.send('received')
-        except socket.error as exception:
-            log_error(exception)
-
-
-def main():
-    """
-    The main driver program
-    """
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = raw_input('Host ip: ')
-    port = input('PORT: ')
-    down = raw_input('Download Folder: ')
-
-    if not os.path.exists(down):
-        sys.stderr.write('Download folder does not exist')
-        exit(-1)
-    elif not os.access(down, os.W_OK):
-        sys.stderr.write('Insufficient privileges on download folder\n')
-        exit(-1)
-    else:
-        os.chdir(down)
-
-    try:
-        sock.connect((host, port))
-    except socket.error:
-        sys.stderr.write('No available server found on given address\n')
-        sock.close()
-        exit(-1)
-    cnt = 0
-
-    try:
-        logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
-        logging.debug('Starting the Client')
-    except IOError as exception:
-        sys.stderr.write('Logging error %s\n' % exception)
-        exit(-1)
-
-    time = get_current_time()
-    logging.info('Connected to %s at %s', host, time)
-    logging.debug('Commands sent:')
-    while True:
-        cnt += 1
-        cmd = raw_input('Enter command: ')
-        cmd = cmd.split()
-        logging.debug('Command %d - %s', cnt, cmd)
-        if not cmd or cmd[0] == 'close':
-            sock.send(cmd)
-            close_client(sock)
-        elif cmd[0] == 'IndexGet' or cmd[0] == 'FileHash':
-            receive_data(sock, cmd)
-        elif cmd[0] == 'FileDownload':
-            file_download(sock, cmd, host)
-        else:
-            sys.stderr.write('Invalid Command %s\n' % cmd)
+    def _create_new_sock_if_needed(self, flag):
+        """
+        Create a new sock if the protocol to be used is UDP and return it
+        :param flag: protocol flag given for `FileDownload` command
+        :return: new socket created and the new_host_address
+                  if flag is UDP None otherwise
+        """
+        new_server_sock = None
+        new_host_address = None
+        if flag == 'UDP':
+            port_received = int(self.sock.recv(self.buffer_size))
+            new_server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            new_host_address = (self.server_address, port_received)
+            new_server_sock.sendto('received', new_host_address)
+        return new_server_sock, new_host_address
 
 
 if __name__ == '__main__':
-    main()
+    TEST_CLIENT = Client('client_log.log', BUF_SIZE)
+    TEST_CLIENT.main()

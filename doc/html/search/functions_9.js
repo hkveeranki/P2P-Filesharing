@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['verify',['verify',['../namespacep2pfileshare_1_1server.html#a5d28b76841b88639b9dbe740c04617ef',1,'p2pfileshare::server']]]
+  ['verify',['verify',['../classp2pfileshare_1_1server_1_1Server.html#ac118714e4a0943fac0bea93d4974f226',1,'p2pfileshare::server::Server']]]
 ];

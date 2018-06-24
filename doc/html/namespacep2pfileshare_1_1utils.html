@@ -75,6 +75,10 @@ $(function() {
 Functions</h2></td></tr>
 <tr class="memitem:a8669221ca2199578d7bc7f4453f3b667"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacep2pfileshare_1_1utils.html#a8669221ca2199578d7bc7f4453f3b667">get_current_time</a> ()</td></tr>
 <tr class="separator:a8669221ca2199578d7bc7f4453f3b667"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7da0356b8e206b0caa90e2ca685ed73d"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacep2pfileshare_1_1utils.html#a7da0356b8e206b0caa90e2ca685ed73d">change_directory</a> (folder)</td></tr>
+<tr class="separator:a7da0356b8e206b0caa90e2ca685ed73d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ba014baecc3a837f434385450731c32"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacep2pfileshare_1_1utils.html#a3ba014baecc3a837f434385450731c32">clean_file_name</a> (filename)</td></tr>
+<tr class="separator:a3ba014baecc3a837f434385450731c32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -82,10 +86,64 @@ Variables</h2></td></tr>
 string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacep2pfileshare_1_1utils.html#a66b3b307e02edd63e965f58dcb6d5703">DATE_TIME_FORMAT</a> = '%I:%M%p %B %d, %Y'</td></tr>
 <tr class="memdesc:a66b3b307e02edd63e965f58dcb6d5703"><td class="mdescLeft">&#160;</td><td class="mdescRight">format for the date time string <br /></td></tr>
 <tr class="separator:a66b3b307e02edd63e965f58dcb6d5703"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63fa3fd131cb05e6260e28afc67ac725"><td class="memItemLeft" align="right" valign="top"><a id="a63fa3fd131cb05e6260e28afc67ac725"></a>
+list&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacep2pfileshare_1_1utils.html#a63fa3fd131cb05e6260e28afc67ac725">PROTOCOLS</a> = ['UDP', 'TCP']</td></tr>
+<tr class="memdesc:a63fa3fd131cb05e6260e28afc67ac725"><td class="mdescLeft">&#160;</td><td class="mdescRight">Protocols supported for file transfer. <br /></td></tr>
+<tr class="separator:a63fa3fd131cb05e6260e28afc67ac725"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad02a023caf3dc03e6085fed49325d902"><td class="memItemLeft" align="right" valign="top"><a id="ad02a023caf3dc03e6085fed49325d902"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacep2pfileshare_1_1utils.html#ad02a023caf3dc03e6085fed49325d902">BUF_SIZE</a> = 1024</td></tr>
+<tr class="memdesc:ad02a023caf3dc03e6085fed49325d902"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send and Receive buffer size. <br /></td></tr>
+<tr class="separator:ad02a023caf3dc03e6085fed49325d902"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4bdc8b4591da7df2e9112fbb51fb00e"><td class="memItemLeft" align="right" valign="top"><a id="af4bdc8b4591da7df2e9112fbb51fb00e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacep2pfileshare_1_1utils.html#af4bdc8b4591da7df2e9112fbb51fb00e">LOG_LEVEL</a> = logging.DEBUG</td></tr>
+<tr class="memdesc:af4bdc8b4591da7df2e9112fbb51fb00e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Level of logging. <br /></td></tr>
+<tr class="separator:af4bdc8b4591da7df2e9112fbb51fb00e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">Utilities needed for both client and server
 </pre> </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a7da0356b8e206b0caa90e2ca685ed73d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7da0356b8e206b0caa90e2ca685ed73d">&#9670;&nbsp;</a></span>change_directory()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def p2pfileshare.utils.change_directory </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>folder</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Change the current working directory to a given folder
+:param folder: target directory
+</pre> 
+</div>
+</div>
+<a id="a3ba014baecc3a837f434385450731c32"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ba014baecc3a837f434385450731c32">&#9670;&nbsp;</a></span>clean_file_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def p2pfileshare.utils.clean_file_name </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>filename</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Clean the filename for the client. If it has directory structure,
+ purge it and give only the file name.
+:param filename: file name to be cleaned
+:return: cleaned filename
+</pre> 
+</div>
+</div>
 <a id="a8669221ca2199578d7bc7f4453f3b667"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8669221ca2199578d7bc7f4453f3b667">&#9670;&nbsp;</a></span>get_current_time()</h2>
 

@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['check_5fall',['check_all',['../namespacep2pfileshare_1_1server.html#a36d006e8d2bca5da75b9e6bea50bba80',1,'p2pfileshare::server']]],
-  ['close_5fclient',['close_client',['../namespacep2pfileshare_1_1client.html#ac19e8c4cbf0a3b50d3b619546f1b905f',1,'p2pfileshare::client']]],
-  ['create_5fport',['create_port',['../namespacep2pfileshare_1_1server.html#a8556848dfd8cd5e18908572ea78698a4',1,'p2pfileshare::server']]]
+  ['buf_5fsize',['BUF_SIZE',['../namespacep2pfileshare_1_1utils.html#ad02a023caf3dc03e6085fed49325d902',1,'p2pfileshare::utils']]],
+  ['buffer_5fsize',['buffer_size',['../classp2pfileshare_1_1Runner.html#ac12a939c5a1da43bf2f0f87108583d57',1,'p2pfileshare::Runner']]]
 ];

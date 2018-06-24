@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['date_5ftime_5fformat',['DATE_TIME_FORMAT',['../namespacep2pfileshare_1_1utils.html#a66b3b307e02edd63e965f58dcb6d5703',1,'p2pfileshare::utils']]]
+  ['client_5faddress',['client_address',['../classp2pfileshare_1_1server_1_1Server.html#a20318468ba7d121dbc41518e31904c87',1,'p2pfileshare::server::Server']]],
+  ['client_5fsock',['client_sock',['../classp2pfileshare_1_1server_1_1Server.html#a9add03a980bc8474c1458946f4298294',1,'p2pfileshare::server::Server']]]
 ];
