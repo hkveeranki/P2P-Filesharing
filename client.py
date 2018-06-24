@@ -4,23 +4,15 @@ Contains functionality for client
 import socket
 import os
 import sys
-from datetime import datetime
 import hashlib
 import logging
+
+from utils import get_current_time
 
 __author__ = 'harry7'
 LOG_FILE = 'client_log.log'
 LOG_LEVEL = logging.DEBUG
-DATE_TIME_FORMAT = '%I:%M%p %B %d, %Y'
 BUF_SIZE = 1024
-
-
-def get_current_time():
-    """
-    Return current time as a string in required format
-    :return: string with current time
-    """
-    return datetime.now().strftime(DATE_TIME_FORMAT)
 
 
 def close_client(client_sock):
@@ -44,6 +36,7 @@ def file_download(server_sock, input_cmd, host):
     data = server_sock.recv(BUF_SIZE)
     filename = ' '.join(input_cmd[2:])
     flag = input_cmd[1]
+    print('Entered file_download')
 
     def log_error(error_exception):
         """
@@ -58,9 +51,10 @@ def file_download(server_sock, input_cmd, host):
         sys.stderr.write('Format FileDownload <TCP/UDP> <file_name>\n')
         return
     if data != 'received':
-        print data
+        print 'wrong ack received', data
         return
     if flag == 'UDP':
+        print(flag)
         port_received = int(server_sock.recv(BUF_SIZE))
         new_server_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         addr = (host, port_received)
@@ -108,7 +102,7 @@ def file_download(server_sock, input_cmd, host):
 
 def receive_data(current_sock, input_cmd):
     """
-    Handles recieving data for `IndexGet` and `FileHash` commands
+    Handles receiving data for `IndexGet` and `FileHash` commands
     :param current_sock: Server socket for communication
     :param input_cmd: Command given to the client
     """
@@ -123,7 +117,7 @@ def receive_data(current_sock, input_cmd):
         close_client(current_sock)
 
     try:
-        current_sock.send(input_cmd)
+        current_sock.send(' '.join(input_cmd))
     except socket.error as exception:
         log_error(exception)
     while True:

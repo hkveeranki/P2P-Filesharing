@@ -7,25 +7,51 @@ import random
 import re
 import logging
 import sys
-from datetime import datetime
+
+from utils import get_current_time
 
 __author__ = 'harry7'
+BUF_SIZE = 1024
+FIND_CMD = "find . -not -path '*/\\.*' -type f"
+HOST = '0.0.0.0'
 LOG_FILE = 'server_log.log'
 LOG_LEVEL = logging.DEBUG
 STAT_CMD_PREFIX = "stat --printf 'name: %n \tSize: %s bytes\t Type: " \
                   "%F\t Timestamp:%z' "
-DATE_TIME_FORMAT = '%I:%M%p %B %d, %Y'
-BUF_SIZE = 1024
-FIND_CMD = "find . -not -path '*/\\.*' -type f"
-HOST = '0.0.0.0'
 
 
-def get_current_time():
+def init_setup():
     """
-    Return current time as a string in required format
-    :return: string with current time
+    Perform pre-boot setup for server
+    :return: host_sock - host socket setup, shared - path to the shared folder
     """
-    return datetime.now().strftime(DATE_TIME_FORMAT)
+    host_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    shared = raw_input('FullPath of Shared Folder: ')
+    try:
+        host_sock.bind((HOST, (input('PORT: '))))
+    except socket.error as exception:
+        sys.stderr.write('Socket creation Error %s\n' % exception)
+        exit(-1)
+    host_sock.listen(5)
+
+    setup_logging()
+    sys.stderr.write('Server is Up and Running')
+    time_start = get_current_time()
+    logging.info('Server Started at %s', time_start)
+
+    return host_sock, shared
+
+
+def setup_logging():
+    """
+    Setup the logging mechanism for the server
+    """
+    try:
+        logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
+        logging.debug('Starting the server')
+    except IOError as exception:
+        sys.stderr.write('Logging error %s\n' % exception)
+        exit(-1)
 
 
 def create_port(sock):
@@ -48,7 +74,66 @@ def log_error(exception):
     Log an error to the log file which was caused by exception
     :param exception: exception which is the cause of error
     """
-    logging.error('Connection Error to %s\n %s', client_address, exception)
+    logging.error('Connection Error to %s\n %s at %s',
+                  client_address, exception, get_current_time())
+
+
+def send_file_info_to_socket(client_sock, files):
+    """
+    Sends the information of files to the client
+    :param client_sock: client socket to which data needs to be sent
+    :param files: files whose data needs to be sent
+    """
+    try:
+        if not files:
+            client_sock.send('No Files Found')
+        else:
+            for cur_file in files:
+                if cur_file != '':
+                    cur_file = '\'' + cur_file + '\''
+                    cmd = STAT_CMD_PREFIX + cur_file
+                    res = os.popen(cmd).read()
+                    client_sock.send(res)
+                    if client_sock.recv(BUF_SIZE) != 'received':
+                        break
+        client_sock.send(' ')
+        client_sock.recv(BUF_SIZE)
+        client_sock.send('done')
+    except socket.error as exception:
+        log_error(exception)
+
+
+def file_transfer(client_socket, filename, shared_folder, new_client_address=None):
+    """
+    Perform file_transfer
+    :param client_socket: client socket for communication
+    :param filename: name of the file that needs to be transfered
+    :param shared_folder: full path to shared folder
+    :param new_client_address: address of the client if protocol is UDP None otherwise
+    :return: False if error occurs True otherwise
+    """
+    try:
+        file_pointer = open(shared_folder + '/' + filename, 'rb')
+        byte = file_pointer.read(BUF_SIZE)
+        while byte:
+            if new_client_address:
+                client_socket.sendto(byte, new_client_address)
+                data, new_client_address = client_socket.recvfrom(BUF_SIZE)
+            else:
+                client_socket.send(byte)
+                data = client_socket.recv(BUF_SIZE)
+            if data != 'received':
+                break
+            byte = file_pointer.read(BUF_SIZE)
+
+        if new_client_address:
+            client_socket.sendto('done', new_client_address)
+        else:
+            client_socket.send('done')
+    except (socket.error, IOError) as exception:
+        log_error(exception)
+        return False
+    return True
 
 
 def regex(sock, reg):
@@ -57,56 +142,22 @@ def regex(sock, reg):
     :param sock: client socket to which information has to be sent
     :param reg: regular expression to be matched
     """
-    flag = False
     files = os.popen(FIND_CMD).read().splitlines()
-    if len(files) == 1:
-        sock.send('No Files Found')
-        return
-    try:
-        for j in files:
-            if j and re.search(reg, j) and re.search(reg, j).group(0) != '':
-                j = '\'' + j + '\''
-                cmd = STAT_CMD_PREFIX + j
-                res = os.popen(cmd).read()
-                sock.send(res)
-                flag = True
-                if sock.recv(BUF_SIZE) != 'received':
-                    break
-        if not flag:
-            sock.send('No Files Found')
-        sock.send(' ')
-        sock.recv(BUF_SIZE)
-        sock.send('done')
-    except socket.error as exception:
-        log_error(exception)
+    files = [cur_file for cur_file in files if cur_file and
+             re.search(reg, cur_file) and re.search(reg, cur_file).group(0)]
+    send_file_info_to_socket(sock, files)
 
 
-def longlist(client_sock):
+def long_list(client_sock):
     """
-    Perform the longlist operation
+    Perform the `longlist` operation
     :param client_sock: client socket to which the data needs to be sent
     """
-    files = os.popen(FIND_CMD).read().splitlines()
-    if len(files) == 1:
-        client_sock.send('No Files Found')
-        return
-    try:
-        for j in files:
-            if j != '':
-                j = '\'' + j + '\''
-                cmd = STAT_CMD_PREFIX + j
-                res = os.popen(cmd).read()
-                client_sock.send(res)
-                if client_sock.recv(BUF_SIZE) != 'received':
-                    break
-        client_sock.send(' ')
-        client_sock.recv(BUF_SIZE)
-        client_sock.send('done')
-    except socket.error as exception:
-        log_error(exception)
+    files = os.popen(FIND_CMD).read().splitlines()[1:]
+    send_file_info_to_socket(client_sock, files)
 
 
-def shortlist(client_sock, inp):
+def short_list(client_sock, inp):
     """
     Perform the shortlist command
     :param client_sock: client socket to which data needs to be sent
@@ -116,25 +167,8 @@ def shortlist(client_sock, inp):
     time1 = inp[2] + ' ' + inp[3]
     time2 = inp[4] + ' ' + inp[5]
     files = os.popen("find %s -newermt %s ! -newermt  %s -not -path '*/\\.*' -type f" % (
-        '.', str('\'' + time1 + '\''), str('\'' + time2 + '\''))).read().splitlines()
-    if len(files) == 1:
-        client_sock.send('No Files Found')
-        client_sock.recv(BUF_SIZE)
-        return
-    try:
-        for j in files:
-            if j != '':
-                j = '\'' + j + '\''
-                cmd = STAT_CMD_PREFIX + j
-                res = os.popen(cmd).read()
-                client_sock.send(res)
-                if client_sock.recv(BUF_SIZE) != 'received':
-                    break
-        client_sock.send(' ')
-        client_sock.recv(BUF_SIZE)
-        client_sock.send('done')
-    except socket.error as exception:
-        log_error(exception)
+        '.', str('\'' + time1 + '\''), str('\'' + time2 + '\''))).read().splitlines()[1:]
+    send_file_info_to_socket(client_sock, files)
 
 
 def verify(client_sock, filename):
@@ -164,66 +198,7 @@ def verify(client_sock, filename):
         log_error(exception)
 
 
-def file_send(client_sock, args):
-    """
-    Perform `FileDownload` command
-    :param client_sock: client socket to which data needs to be sent
-    :param args: arguments for the command
-    """
-    args = args.split()
-    flag = args[1]
-    filename = ' '.join(args[2:])
-    output = os.popen('ls \'' + filename + '\'').read().splitlines()[0]
-    if output == '':
-        client_sock.send('No Such File available for download')
-        return
-    else:
-        client_sock.send('received')
-        if flag == 'UDP':
-            new_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            new_port = create_port(new_socket)
-            client_sock.send(str(new_port))
-            data, new_client_address = new_socket.recvfrom(BUF_SIZE)
-            if data == 'received':
-                try:
-                    file_pointer = open(filename, 'rb')
-                    byte = file_pointer.read(BUF_SIZE)
-                    while byte:
-                        new_socket.sendto(byte, new_client_address)
-                        data, new_client_address = new_socket.recvfrom(BUF_SIZE)
-                        if data != 'received':
-                            break
-                        byte = file_pointer.read(BUF_SIZE)
-                    new_socket.sendto('done', new_client_address)
-                except socket.error as exception:
-                    log_error(exception)
-                    return
-
-        elif flag == 'TCP':
-            try:
-                file_pointer = open(filename, 'rb')
-                byte = file_pointer.read(BUF_SIZE)
-                while byte:
-                    client_sock.send(byte)
-                    if client_sock.recv(BUF_SIZE) != 'received':
-                        break
-                    byte = file_pointer.read(BUF_SIZE)
-                client_sock.send('done')
-            except socket.error as exception:
-                log_error(exception)
-                return
-        else:
-            logging.info('Bad Arguments provided')
-            return
-        file_hash = os.popen('md5sum \'' + filename + '\'').read().split()[0]
-        client_sock.send(file_hash)
-        cmd = STAT_CMD_PREFIX + filename
-        res = os.popen(cmd).read()
-        if client_sock.recv(BUF_SIZE) == 'sendme':
-            client_sock.send(res)
-
-
-def checkall(client_sock):
+def check_all(client_sock):
     """
     Perform `checkall` command
     :param client_sock: client socket to which data needs to be sent
@@ -235,38 +210,127 @@ def checkall(client_sock):
     client_sock.send('done')
 
 
+def process_file_send(client_sock, args, shared_folder):
+    """
+    Perform `FileDownload` command
+    :param shared_folder: full path of the shared folder
+    :param client_sock: client socket to which data needs to be sent
+    :param args: arguments for the command
+    """
+    flag = args[1]
+    filename = ' '.join(args[2:])
+    output = os.popen('ls \'' + filename + '\'').read().splitlines()[0]
+    if not output:
+        client_sock.send('No Such File available for download')
+    elif flag not in ['UDP', 'TCP']:
+        logging.info('Bad Arguments provided')
+    else:
+        client_sock.send('received')
+        if flag == 'UDP':
+            new_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            new_port = create_port(new_socket)
+            client_sock.send(str(new_port))
+            data, new_client_address = new_socket.recvfrom(BUF_SIZE)
+            if data != 'received':
+                return True
+            success = file_transfer(new_socket, filename, shared_folder,
+                                    new_client_address=new_client_address)
+        else:
+            success = file_transfer(client_sock, filename, shared_folder)
+        if not success:
+            return success
+        file_hash = os.popen('md5sum \'' + filename + '\'').read().split()[0]
+        client_sock.send(file_hash)
+        res = os.popen(STAT_CMD_PREFIX + filename).read()
+        if client_sock.recv(BUF_SIZE) == 'sendme':
+            client_sock.send(res)
+    return True
+
+
+def process_file_hash(client_sock, cmd):
+    """
+    Process the `FileHash` type command
+    :param client_sock: client socket for communication
+    :param cmd: command received from client
+    :return: False if error occured False otherwise
+    """
+    if cmd[1] == 'verify':
+        verify(client_sock, cmd[2])
+    elif cmd[1] == 'checkall' and len(cmd) == 2:
+        check_all(client_sock)
+    else:
+        try:
+            client_sock.send('Invalid Arguments')
+            client_sock.send('done')
+        except socket.error as exception:
+            log_error(exception)
+            return False
+    return True
+
+
+def process_index_get(client_sock, cmd):
+    """
+    Process the `IndexGet` type command
+    :param client_sock: client socket for communication
+    :param cmd: command received from client
+    :return: False if error occured False otherwise
+    """
+    if cmd[1] == 'longlist':
+        long_list(client_sock)
+    elif cmd[1] == 'shortlist' and len(cmd) == 6:
+        short_list(client_sock, cmd)
+    elif len(cmd) == 2:
+        regex(client_sock, cmd[1])
+    else:
+        try:
+            client_sock.send('Syntax error')
+            client_sock.send('Input Format IndexGet shotlist date1 time1 date2 time2')
+            client_sock.send('done')
+        except socket.error as exception:
+            log_error(exception)
+            return False
+    return True
+
+
+def process_commands(client_sock, shared_folder):
+    """
+    Process the commands requested by client
+    :param shared_folder: full path of shared folder
+    :param client_sock: client socket for communication
+    """
+    cnt = 0
+    success = True
+    while True:
+        cnt += 1
+        try:
+            cmd = client_sock.recv(BUF_SIZE)
+            logging.debug('Command %d - %s', cnt, cmd)
+        except socket.error as exception:
+            log_error(exception)
+            break
+        cmd = cmd.split()
+        if not cmd or cmd[0] == 'close':
+            logging.debug('Connection Closed at %s', get_current_time())
+            break
+        elif cmd[0] == 'IndexGet':
+            success = process_index_get(client_sock, cmd)
+        elif cmd[0] == 'FileHash':
+            success = process_file_hash(client_sock, cmd)
+        elif cmd[0] == 'FileDownload':
+            success = process_file_send(client_sock, cmd, shared_folder)
+        else:
+            client_sock.send('Invalid Command')
+            client_sock.send('done')
+        if not success:
+            break
+    client_sock.close()
+
+
 def main():
     """
     Main driver code
     """
-    port = input('PORT: ')
-    host_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        host_sock.bind((HOST, port))
-    except socket.error as exception:
-        sys.stderr.write('Socket creation Error %s\n' % exception)
-        exit(-1)
-
-    host_sock.listen(5)
-    shared = raw_input('FullPath of Shared Folder: ')
-    if not os.path.exists(shared):
-        sys.stderr.write('Shared folder doesn\'t exist\n')
-        exit(-1)
-    elif not os.access(shared, os.R_OK):
-        sys.stderr.write('No Privilleges on the shared directory\n')
-        exit(-1)
-    else:
-        os.chdir(shared)
-    try:
-        logging.basicConfig(filename=LOG_FILE, level=LOG_LEVEL)
-        logging.debug('Starting the server')
-    except IOError as exception:
-        sys.stderr.write('Logging error %s\n' % exception)
-        exit(-1)
-    sys.stderr.write('Server is Up and Running')
-    time_start = get_current_time()
-    logging.info('Server Started at %s', time_start)
-
+    host_sock, shared_folder = init_setup()
     while True:
         try:
             global client_address
@@ -276,57 +340,10 @@ def main():
             sys.stderr.write('Shutting Down the server')
             logging.info('Server Closed at %s', get_current_time())
             break
-        cnt = 0
         logging.debug(' Got a connection from %s at %s',
                       client_address, get_current_time())
         logging.debug('Commands Executed:')
-        while True:
-            cnt += 1
-            try:
-                args = client_sock.recv(BUF_SIZE)
-                logging.debug('Command %d - %s', cnt, args)
-            except socket.error:
-                logging.debug('Connection Closed at %s', get_current_time())
-                break
-            args = args.split()
-            if args or args[0] == 'close':
-                client_sock.close()
-                logging.debug('Connection Closed at %s', get_current_time())
-                break
-            elif args[0] == 'IndexGet':
-                if args[1] == 'longlist':
-                    longlist(client_sock)
-                elif args[1] == 'shortlist' and len(args) == 6:
-                    shortlist(client_sock, args)
-                elif len(args) == 2:
-                    regex(client_sock, args[1])
-                else:
-                    try:
-                        client_sock.send('Syntax error')
-                        client_sock.send('Input Format IndexGet shotlist date1 time1 date2 time2')
-                        client_sock.send('done')
-                    except socket.error as exception:
-                        log_error(exception)
-                        break
-
-            elif args[0] == 'FileHash':
-                if args[1] == 'verify':
-                    verify(client_sock, args[2])
-                elif args[1] == 'checkall' and len(args) == 2:
-                    checkall(client_sock)
-                else:
-                    try:
-                        client_sock.send('Invalid Arguments')
-                        client_sock.send('done')
-                    except socket.error as exception:
-                        log_error(exception)
-                        break
-            elif args[0] == 'FileDownload':
-                file_send(client_sock, args)
-            else:
-                client_sock.send('Invalid Command')
-                client_sock.send('done')
-        client_sock.close()
+        process_commands(client_sock, shared_folder)
 
 
 if __name__ == '__main__':
