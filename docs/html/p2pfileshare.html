@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>p2pfileshare package &mdash; P2P file sharing  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="p2pfileshare" href="modules.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="main.html" class="icon icon-home"> P2P file sharing
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Introduction!</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">p2pfileshare</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">p2pfileshare package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-p2pfileshare.client">p2pfileshare.client module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-p2pfileshare.server">p2pfileshare.server module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-p2pfileshare.utils">p2pfileshare.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-p2pfileshare">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="main.html">P2P file sharing</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="main.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">p2pfileshare</a> &raquo;</li>
+        
+      <li>p2pfileshare package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/p2pfileshare.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="p2pfileshare-package">
+<h1>p2pfileshare package<a class="headerlink" href="#p2pfileshare-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-p2pfileshare.client">
+<span id="p2pfileshare-client-module"></span><h2>p2pfileshare.client module<a class="headerlink" href="#module-p2pfileshare.client" title="Permalink to this headline">¶</a></h2>
+<p>Contains functionality for client</p>
+<dl class="class">
+<dt id="p2pfileshare.client.Client">
+<em class="property">class </em><code class="descclassname">p2pfileshare.client.</code><code class="descname">Client</code><span class="sig-paren">(</span><em>log_file</em>, <em>buffer_size</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.client.Client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#p2pfileshare.Runner" title="p2pfileshare.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">p2pfileshare.Runner</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that implements the functionality of the client</p>
+<dl class="method">
+<dt id="p2pfileshare.client.Client.close_client">
+<code class="descname">close_client</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.client.Client.close_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close client and update that information in log</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.client.Client.file_download">
+<code class="descname">file_download</code><span class="sig-paren">(</span><em>input_cmd</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.client.Client.file_download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the <cite>FileDownload</cite> command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_cmd</strong> – command given</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.client.Client.main">
+<code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.client.Client.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>The main driver program</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.client.Client.receive_data">
+<code class="descname">receive_data</code><span class="sig-paren">(</span><em>input_cmd</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.client.Client.receive_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles receiving data for <cite>IndexGet</cite> and <cite>FileHash</cite> commands</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_cmd</strong> – Command given to the client</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-p2pfileshare.server">
+<span id="p2pfileshare-server-module"></span><h2>p2pfileshare.server module<a class="headerlink" href="#module-p2pfileshare.server" title="Permalink to this headline">¶</a></h2>
+<p>Contains functionality for server</p>
+<dl class="class">
+<dt id="p2pfileshare.server.Server">
+<em class="property">class </em><code class="descclassname">p2pfileshare.server.</code><code class="descname">Server</code><span class="sig-paren">(</span><em>host_address</em>, <em>buffer_size</em>, <em>log_file</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#p2pfileshare.Runner" title="p2pfileshare.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">p2pfileshare.Runner</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class that implements the functionality of the client</p>
+<dl class="method">
+<dt id="p2pfileshare.server.Server.check_all">
+<code class="descname">check_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.check_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform <cite>checkall</cite> command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">False if an error occurred True otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.file_transfer">
+<code class="descname">file_transfer</code><span class="sig-paren">(</span><em>filename</em>, <em>new_socket=None</em>, <em>new_client_address=None</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.file_transfer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform file_transfer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> – name of the file that needs to be transfered</li>
+<li><strong>new_client_address</strong> – address of the client if protocol is UDP None otherwise</li>
+<li><strong>new_socket</strong> – If protocol is UDP new socket created for it</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">False if error occurs True otherwise</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.long_list">
+<code class="descname">long_list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.long_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the <cite>longlist</cite> operation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">False if an error occurred True otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.main">
+<code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main driver code</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.process_commands">
+<code class="descname">process_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.process_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the commands received from a client</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.process_file_hash">
+<code class="descname">process_file_hash</code><span class="sig-paren">(</span><em>cmd</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.process_file_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the <cite>FileHash</cite> type command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmd</strong> – command received from client</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">False if an error occurred True otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.process_file_send">
+<code class="descname">process_file_send</code><span class="sig-paren">(</span><em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.process_file_send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform <cite>FileDownload</cite> command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>args</strong> – arguments for the command</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.process_index_get">
+<code class="descname">process_index_get</code><span class="sig-paren">(</span><em>cmd</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.process_index_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process the <cite>IndexGet</cite> type command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cmd</strong> – command received from client</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">False if an error occurred True otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.regex">
+<code class="descname">regex</code><span class="sig-paren">(</span><em>reg</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the regex functionality for the <cite>IndexGet</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reg</strong> – regular expression to be matched</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">False if an error occurred True otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.send_file_info_to_socket">
+<code class="descname">send_file_info_to_socket</code><span class="sig-paren">(</span><em>files</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.send_file_info_to_socket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends the information of files to the client</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>files</strong> – files whose data needs to be sent</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">False if an error occurred True otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.short_list">
+<code class="descname">short_list</code><span class="sig-paren">(</span><em>inp</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.short_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the shortlist command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inp</strong> – input arguments for <cite>shortlist</cite> command</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">False if an error occurred True otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="p2pfileshare.server.Server.verify">
+<code class="descname">verify</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.server.Server.verify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the <cite>verify</cite> command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – filename whose hash need to be verified</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">False if an error occurred True otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-p2pfileshare.utils">
+<span id="p2pfileshare-utils-module"></span><h2>p2pfileshare.utils module<a class="headerlink" href="#module-p2pfileshare.utils" title="Permalink to this headline">¶</a></h2>
+<p>Utilities needed for both client and server</p>
+<dl class="function">
+<dt id="p2pfileshare.utils.change_directory">
+<code class="descclassname">p2pfileshare.utils.</code><code class="descname">change_directory</code><span class="sig-paren">(</span><em>folder</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.utils.change_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the current working directory to a given folder</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>folder</strong> – target directory</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="p2pfileshare.utils.clean_file_name">
+<code class="descclassname">p2pfileshare.utils.</code><code class="descname">clean_file_name</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.utils.clean_file_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean the filename for the client.</p>
+<p>If it has directory structure, purge it and give only the file name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> – file name to be cleaned</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">cleaned filename</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="p2pfileshare.utils.get_current_time">
+<code class="descclassname">p2pfileshare.utils.</code><code class="descname">get_current_time</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.utils.get_current_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return current time as a string in required format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string with current time</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-p2pfileshare">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-p2pfileshare" title="Permalink to this headline">¶</a></h2>
+<p>p2pfileshare module.
+Provides a cli based p2p file sharing system which consists of a server and client. Works well for linux systems</p>
+<dl class="class">
+<dt id="p2pfileshare.Runner">
+<em class="property">class </em><code class="descclassname">p2pfileshare.</code><code class="descname">Runner</code><span class="sig-paren">(</span><em>buffer_size=1024</em>, <em>log_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.Runner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Interface for any runner class inside p2pfileshare</p>
+<dl class="method">
+<dt id="p2pfileshare.Runner.main">
+<code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#p2pfileshare.Runner.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method should start executing the corresponding module</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="modules.html" class="btn btn-neutral" title="p2pfileshare" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Hemanth Kumar Veeranki &lt;hems.india1997@gmail.com&gt;.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

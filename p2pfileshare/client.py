@@ -1,23 +1,21 @@
 """
 Contains functionality for client
 """
-import socket
-import os
-import sys
 import hashlib
 import logging
+import os
+import socket
+import sys
 
+from . import Runner
 from .utils import get_current_time, change_directory, \
     PROTOCOLS, clean_file_name, BUF_SIZE, LOG_LEVEL
-from . import Runner
 
 __author__ = 'harry7'
 
 
 class Client(Runner, object):
-    """
-    Class that implements the functionality of the client
-    """
+    """ Class that implements the functionality of the client """
 
     def __init__(self, log_file, buffer_size):
         """
@@ -32,17 +30,16 @@ class Client(Runner, object):
         self.server_port = None
 
     def close_client(self):
-        """
-        Close client and update that information in log
-        """
+        """ Close client and update that information in log """
         logging.info('Connection Closed at %s', get_current_time())
         self.sock.close()
         exit(0)
 
     def receive_data(self, input_cmd):
-        """
-        Handles receiving data for `IndexGet` and `FileHash` commands
+        """ Handles receiving data for `IndexGet` and `FileHash` commands
+
         :param input_cmd: Command given to the client
+
         """
 
         def log_error(error_exception):
@@ -72,9 +69,10 @@ class Client(Runner, object):
                 log_error(exception)
 
     def file_download(self, input_cmd):
-        """
-        Perform the `FileDownload` command
+        """ Perform the `FileDownload` command
+
         :param input_cmd: command given
+
         """
         flag = input_cmd[1]
         if flag not in PROTOCOLS:
@@ -119,9 +117,7 @@ class Client(Runner, object):
         self._verify_hash(filename)
 
     def main(self):
-        """
-        The main driver program
-        """
+        """ The main driver program """
         self._init_setup()
         cnt = 0
         logging.debug('Commands sent:')

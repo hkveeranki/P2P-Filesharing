@@ -1,11 +1,11 @@
 """
 Contains functionality for server
 """
-import socket
+import logging
 import os
 import random
 import re
-import logging
+import socket
 import sys
 
 from . import Runner
@@ -23,9 +23,7 @@ STAT_CMD_PREFIX = "stat --printf 'name: %n \tSize: %s bytes\t Type: " \
 
 
 class Server(Runner, object):
-    """
-    Class that implements the functionality of the client
-    """
+    """ Class that implements the functionality of the client """
 
     def __init__(self, host_address, buffer_size, log_file):
         """
@@ -43,12 +41,14 @@ class Server(Runner, object):
         self.client_sock = None
 
     def file_transfer(self, filename, new_socket=None, new_client_address=None):
-        """
-        Perform file_transfer
+        """ Perform file_transfer
+
         :param filename: name of the file that needs to be transfered
         :param new_client_address: address of the client if protocol is UDP None otherwise
         :param new_socket: If protocol is UDP new socket created for it
+
         :return: False if error occurs True otherwise
+
         """
         try:
             file_pointer = open(filename, 'rb')
@@ -74,9 +74,10 @@ class Server(Runner, object):
         return True
 
     def process_file_send(self, args):
-        """
-        Perform `FileDownload` command
+        """ Perform `FileDownload` command
+
         :param args: arguments for the command
+
         """
         flag = args[1]
         filename = ' '.join(args[2:])
@@ -108,10 +109,12 @@ class Server(Runner, object):
         return True
 
     def verify(self, filename):
-        """
-        perform the `verify` command
+        """ Perform the `verify` command
+
         :param filename: filename whose hash need to be verified
+
         :return: False if an error occurred True otherwise
+
         """
         filename = '\'' + filename + '\''
         cmd = "stat --printf '%z' " + filename
@@ -136,9 +139,10 @@ class Server(Runner, object):
         return True
 
     def check_all(self):
-        """
-        Perform `checkall` command
+        """ Perform `checkall` command
+
         :return: False if an error occurred True otherwise
+
         """
         files = os.popen(FIND_CMD).read().splitlines()
         for cur_file in files:
@@ -150,10 +154,12 @@ class Server(Runner, object):
         return True
 
     def process_file_hash(self, cmd):
-        """
-        Process the `FileHash` type command
+        """ Process the `FileHash` type command
+
         :param cmd: command received from client
+
         :return: False if an error occurred True otherwise
+
         """
         if cmd[1] == 'verify':
             return self.verify(cmd[2])
@@ -169,10 +175,12 @@ class Server(Runner, object):
         return True
 
     def send_file_info_to_socket(self, files):
-        """
-        Sends the information of files to the client
+        """ Sends the information of files to the client
+
         :param files: files whose data needs to be sent
+
         :return: False if an error occurred True otherwise
+
         """
         try:
             if not files:
@@ -195,10 +203,12 @@ class Server(Runner, object):
         return True
 
     def regex(self, reg):
-        """
-        Perform the regex functionality for the `IndexGet`
+        """ Perform the regex functionality for the `IndexGet`
+
         :param reg: regular expression to be matched
+
         :return: False if an error occurred True otherwise
+
         """
         files = os.popen(FIND_CMD).read().splitlines()
         files = [cur_file for cur_file in files if cur_file and
@@ -206,31 +216,38 @@ class Server(Runner, object):
         return self.send_file_info_to_socket(files)
 
     def long_list(self):
-        """
-        Perform the `longlist` operation
+        """ Perform the `longlist` operation
+
         :return: False if an error occurred True otherwise
+
         """
         files = os.popen(FIND_CMD).read().splitlines()[1:]
         return self.send_file_info_to_socket(files)
 
     def short_list(self, inp):
-        """
-        Perform the shortlist command
+        """ Perform the shortlist command
+
         :param inp: input arguments for `shortlist` command
+
         :return: False if an error occurred True otherwise
+
         """
         inp = inp.split()
         time1 = inp[2] + ' ' + inp[3]
         time2 = inp[4] + ' ' + inp[5]
-        files = os.popen("find %s -newermt %s ! -newermt  %s -not -path '*/\\.*' -type f" % (
-            '.', str('\'' + time1 + '\''), str('\'' + time2 + '\''))).read().splitlines()[1:]
+        files = os.popen(
+            "find %s -newermt %s ! -newermt  %s -not -path '*/\\.*' -type f" % (
+                '.', str('\'' + time1 + '\''),
+                str('\'' + time2 + '\''))).read().splitlines()[1:]
         return self.send_file_info_to_socket(files)
 
     def process_index_get(self, cmd):
-        """
-        Process the `IndexGet` type command
+        """ Process the `IndexGet` type command
+
         :param cmd: command received from client
+
         :return: False if an error occurred True otherwise
+
         """
         if cmd[1] == 'longlist':
             return self.long_list()
@@ -241,7 +258,8 @@ class Server(Runner, object):
         else:
             try:
                 self.client_sock.send('Syntax error')
-                self.client_sock.send('Input Format IndexGet shotlist date1 time1 date2 time2')
+                self.client_sock.send(
+                    'Input Format IndexGet shotlist date1 time1 date2 time2')
                 self.client_sock.send('done')
             except socket.error as exception:
                 self._log_error(exception)
@@ -249,9 +267,7 @@ class Server(Runner, object):
         return True
 
     def process_commands(self):
-        """
-        Process the commands received from a client
-        """
+        """ Process the commands received from a client """
         cnt = 0
         success = True
         while True:
@@ -280,9 +296,7 @@ class Server(Runner, object):
         self.client_sock.close()
 
     def main(self):
-        """
-        Main driver code
-        """
+        """ Main driver code """
         self._init_setup()
         while True:
             try:

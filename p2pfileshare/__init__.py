@@ -5,7 +5,7 @@ Provides a cli based p2p file sharing system which consists of a server and clie
 import socket
 
 __author__ = 'harry7'
-__version = '0.1.0'
+__version = '0.1.1'
 
 
 class Runner(object):
@@ -27,8 +27,5 @@ class Runner(object):
         self.log_file = log_file
 
     def main(self):
-        """
-        This method should start executing the corresponding module
-        :return:
-        """
-        pass
+        """ This method should start executing the corresponding module """
+        raise NotImplementedError()
