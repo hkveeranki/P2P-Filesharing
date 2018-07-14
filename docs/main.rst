@@ -1,6 +1,5 @@
 Welcome to P2P file sharing's documentation!
 ============================================
-.. mdinclude:: ../README.md
 .. toctree::
    :maxdepth: 6
    :caption: Contents:
